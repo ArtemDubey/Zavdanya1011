@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Список подій</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .navbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #eee; }
+        .navbar a { color: #3498db; text-decoration: none; font-weight: bold; margin-left: 10px; }
+        .navbar a:hover { text-decoration: underline; }
+        .navbar .logout-btn { color: #e74c3c; }
+        h1 { color: #2c3e50; margin-top: 0; }
+        form { background: #f9f9f9; padding: 15px; border-radius: 6px; margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        label { display: flex; flex-direction: column; font-size: 14px; }
+        input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 4px; }
+        button { background: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; align-self: flex-end; }
+        button:hover { background: #2980b9; }
+        ul { list-style: none; padding: 0; }
+        li { background: #fff; border: 1px solid #e1e8ed; padding: 15px; margin-bottom: 10px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="navbar">
+            <div>
+                <h1 style="margin: 0; font-size: 24px;">Події</h1>
+            </div>
+            <div>
+                {% if user.is_authenticated %}
+                    <span>Вітаю, <strong>{% if user.first_name %}{{ user.first_name }}{% else %}{{ user.username }}{% endif %}</strong>!</span>
+                    <a href="{% url 'profile' user.id %}">Профіль</a>
+                    <a href="{% url 'booking_history' %}">Мої бронювання</a>
+                    <a href="{% url 'logout' %}" class="logout-btn">Вийти</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Увійти</a> |
+                    <a href="{% url 'register' %}">Реєстрація</a>
+                {% endif %}
+            </div>
+        </div>
+        <form method="GET">
+            <label>Категорія ID: <input type="number" name="category" value="{{ request.GET.category }}"></label>
+            <label>Мін. ціна: <input type="number" name="min_price" value="{{ request.GET.min_price }}"></label>
+            <label>Макс. ціна: <input type="number" name="max_price" value="{{ request.GET.max_price }}"></label>
+            <button type="submit">Фільтрувати</button>
+        </form>
+        <ul>
+            {% for event in events %}
+                <li>
+                    <div>
+                        <strong>{{ event.title }}</strong><br>
+                        <small style="color: #7f8c8d;">{{ event.date|date:"Y-m-d H:i" }} | Ціна: {{ event.price }} грн</small>
+                    </div>
+                    <a href="{% url 'book_event' event.id %}">Забронювати</a>
+                </li>
+            {% empty %}
+                <li>Подій не знайдено.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
